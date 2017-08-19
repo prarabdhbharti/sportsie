@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<title>Sportsie</title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+	<script type="text/javascript" src="app.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body ng-controller="mainCtrl">
+	<div class="container-fluid">
+		<div ng-show="loader" class="loading"></div>
+		<div class="row">
+			<div class="col">
+				<form class="form-horizontal" name="form">
+					<fieldset>
+						<h5>League Table and Fixtures Finder</h5>
+						<!-- Text input-->
+						<div class="form-group">
+						  <label class="col-md-4 control-label" for="nameInput">Select a League</label>  
+						  <div class="col-md-4">
+							  <select class="form-control" ng-change="leagueSelected(selectedLeague)" ng-model="selectedLeague" ng-options="competition.caption for competition in competitions">
+							  	<option value="">Select a League</option>
+							  </select>
+						  </div>
+						</div>
+
+						<!-- Text input-->
+						<div class="form-group" ng-show="selectedLeague">
+						  <label class="col-md-4 control-label" for="numerInput">Select a Team</label>  
+						  <div class="col-md-4">
+						  <select class="form-control" ng-change="teamSelected(selectedTeam)" ng-model="selectedTeam"  ng-options="team.name for team in leagueTeams | orderBy:'+name'">
+						  	<option value="">Select a Team</option>
+						  </select>
+						  </div>
+						</div>
+						<button style="margin-bottom:10px;" class="btn btn-primary" ng-show="!showLeagueTable && showData" ng-click="switchData()">Show League Table</button>
+					</fieldset>
+				</form>
+			</div>
+		</div>	
+		<div class="row" ng-if="showData">
+			<div class="col" ng-if="showLeagueTable">
+				<table class="table table-responsive table-striped">
+				  <thead>
+				    <tr>
+				      <th>Pos</th>
+				      <th>Team</th>
+				      <th>GP</th>
+				      <th>W</th>
+				      <th>D</th>
+				      <th>L</th>
+				      <th>GF</th>
+				      <th>GA</th>
+				      <th>GD</th>
+				      <th>Pts</th>  
+				    </tr>
+				  </thead>
+				  <tbody>
+				    <tr ng-repeat="standing in leagueTable.standing">
+				      <th scope="row">{{standing.position}}</th>
+				      <td>{{standing.teamName}}</td>
+				      <td>{{standing.playedGames}}</td>
+				      <td>{{standing.wins}}</td>
+				      <td>{{standing.draws}}</td>
+				      <td>{{standing.losses}}</td>
+				      <td>{{standing.goals}}</td>
+				      <td>{{standing.goalsAgainst}}</td>
+				      <td>{{standing.goalDifference}}</td>
+				      <td>{{standing.points}}</td>
+				    </tr>
+				  </tbody>
+				</table>
+			</div>
+			<div class="col" ng-if="!showLeagueTable">
+				<table class="table table-responsive table-striped">
+				  <thead>
+				    <tr>
+				    	<th>Time (in local time)</th>
+				      <th>Home Team</th>
+				      <th>Away Team</th>
+				      <th>Matchday</th>
+				      <th>Time Remaining</th>  
+				    </tr>
+				  </thead>
+				  <tbody>
+				    <tr ng-if="teamFixtures.fixtures.length!=0" ng-repeat="fixtures in teamFixtures.fixtures | limitTo: 5">
+				      <th scope="row">{{fixtures.date | date:'medium'}}</th>
+				      <td>{{fixtures.homeTeamName}}</td>
+				      <td>{{fixtures.awayTeamName}}</td>
+				      <td>{{fixtures.matchday}}</td>
+				      <td><span countdown='' date='{{fixtures.date | date:"medium"}}'>&nbsp;</span></td>
+				    </tr>
+				    <tr ng-if="teamFixtures.fixtures.length==0">
+				    	<th scope="row">
+				    		No data available
+				    	</th>
+				    </tr>
+				  </tbody>
+				</table>
+			</div>
+			<div class="col" ng-if="!showLeagueTable">
+				<table class="table table-responsive table-striped">
+				  <thead>
+				    <tr>
+				      <th>Jersey Number</th>
+				      <th>Name</th>
+				      <th>Position</th>
+				      <th>Nationality</th>
+				      <th>Birthdate (Age)</th>
+				      <th>Contract Until</th>  
+				    </tr>
+				  </thead>
+				  <tbody>
+				    <tr ng-if="teamPlayers.players.length!=0" ng-repeat="players in teamPlayers.players | orderBy :'+jerseyNumber'">
+				      <th scope="row">{{players.jerseyNumber}}</th>
+				      <td>{{players.name}}</td>
+				      <td>{{players.position}}</td>
+				      <td>{{players.nationality}}</td>
+				      <td>{{players.dateOfBirth}} ({{getAgeFromDateOfBirth(players.dateOfBirth)}} yrs)</td>
+				      <td>{{players.contractUntil}}</td>
+				    </tr>
+				    <tr ng-if="teamPlayers.players.length==0">
+				    	<th scope="row">No data available</th>
+				    </tr>
+				  </tbody>
+				</table>
+			</div>
+		</div>
+		
+	</div>
+	
+
+</body>
+</html>
